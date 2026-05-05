@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────
+# ROOT .gitignore — ABC Kids: Tap & Learn
+# Flutter / Dart / VS Code / macOS / IntelliJ
+# ─────────────────────────────────────────────
+
+# ── Flutter / Dart ────────────────────────────
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+# pubspec.lock — DO NOT ignore for apps (keep it committed for reproducible builds)
+# Uncomment the line below ONLY if this project is a published Dart library:
+# pubspec.lock
+
+# ── Generated files ───────────────────────────
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+coverage/
+
+# ── Symbolication / Obfuscation ───────────────
+app.*.symbols
+app.*.map.json
+
+# ── Android build artifacts ───────────────────
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ── macOS system files ────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# ── VS Code ───────────────────────────────────
+# Keep .vscode/ for shared launch/task configs
+# .vscode/
+
+# ── IntelliJ / Android Studio ─────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.gradle/
+local.properties
+
+# ── Misc editor / OS ──────────────────────────
+*.class
+*.log
+*.pyc
+*.swp
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── Secrets / Keys (NEVER commit these) ───────
+*.keystore
+*.jks
+key.properties
+*.p12
+*.cer
+*.mobileprovision
+google-services.json        # Add back only if using Firebase
+GoogleService-Info.plist    # Add back only if using Firebase
+
+# ── Environment / Config ──────────────────────
+.env
+.env.*
+*.env
+
+# ── Test coverage ─────────────────────────────
+coverage/
+lcov.info

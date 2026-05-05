@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────
+# Android .gitignore — ABC Kids: Tap & Learn
+# ─────────────────────────────────────────────
+
+# ── Gradle build ──────────────────────────────
+/.gradle/
+/build/
+**/build/
+gradle-wrapper.jar
+/gradlew
+/gradlew.bat
+.gradle/
+captures/
+.cxx/
+
+# ── Local config (machine-specific) ───────────
+local.properties
+.local.properties
+
+# ── Keystore / Signing (NEVER commit) ─────────
+key.properties
+**/*.keystore
+**/*.jks
+*.p12
+
+# ── Generated ─────────────────────────────────
+GeneratedPluginRegistrant.java
+/app/src/main/assets/flutter_assets/
+
+# ── Android Studio ────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+
+# ── Release artifacts ─────────────────────────
+/app/debug/
+/app/profile/
+/app/release/
+*.apk
+*.aab
+
+# ── ProGuard / R8 mapping ─────────────────────
+/app/proguard-rules.pro.bak
+mapping.txt
+seeds.txt
+usage.txt

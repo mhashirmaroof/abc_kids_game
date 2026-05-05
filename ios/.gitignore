@@ -1,0 +1,63 @@
+# ─────────────────────────────────────────────
+# iOS .gitignore — ABC Kids: Tap & Learn
+# ─────────────────────────────────────────────
+
+# ── Xcode build ───────────────────────────────
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# ── CocoaPods ─────────────────────────────────
+Pods/
+/Podfile.lock
+**/.symlinks/
+
+# ── Flutter generated ─────────────────────────
+Flutter/App.framework
+Flutter/Flutter.framework
+Flutter/Flutter.podspec
+Flutter/Generated.xcconfig
+Flutter/ephemeral/
+Flutter/app.flx
+Flutter/app.zip
+Flutter/flutter_assets/
+Flutter/flutter_export_environment.sh
+Flutter/.last_build_id
+ServiceDefinitions.json
+Runner/GeneratedPluginRegistrant.*
+
+# ── Signing / Certificates (NEVER commit) ─────
+*.mobileprovision
+*.cer
+*.p12
+*.p8
+ExportOptions.plist
+
+# ── macOS system ──────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+
+# ── Misc ──────────────────────────────────────
+**/dgph
+**/*sync/
+.sconsign.dblite
+.tags*
+**/.vagrant/
+**/.generated/
+profile
