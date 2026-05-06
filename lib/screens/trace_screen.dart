@@ -129,7 +129,7 @@ class _TracePainter extends CustomPainter {
         style: TextStyle(
           fontSize: size.height * 0.7,
           fontWeight: FontWeight.bold,
-          color: Colors.grey.withOpacity(0.2),
+          color: Colors.grey.withValues(alpha: 0.2),
         ),
       ),
       textDirection: TextDirection.ltr,
@@ -140,7 +140,7 @@ class _TracePainter extends CustomPainter {
     for (int i = 0; i < waypoints.length; i++) {
       final wp = Offset(waypoints[i].dx * size.width, waypoints[i].dy * size.height);
       canvas.drawCircle(wp, 10,
-          Paint()..color = hitWaypoints.contains(i) ? const Color(AppColors.green) : Colors.grey.withOpacity(0.5));
+          Paint()..color = hitWaypoints.contains(i) ? const Color(AppColors.green) : Colors.grey.withValues(alpha: 0.5));
     }
 
     // Draw user's path

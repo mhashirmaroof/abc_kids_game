@@ -13,18 +13,18 @@ class AudioService {
   }
 
   static Future<void> speak(String text) async {
-    await _tts.stop();
+    await _tts.stop();  
     await _tts.speak(text);
   }
 
   static Future<void> playSuccess() async =>
-      _sfx.play(AssetSource('sounds/success.mp3'));
+      _sfx.play(AssetSource('sounds/success.wav'));
 
   static Future<void> playError() async =>
-      _sfx.play(AssetSource('sounds/error.mp3'));
+      _sfx.play(AssetSource('sounds/error.wav'));
 
   static Future<void> playCheer() async =>
-      _sfx.play(AssetSource('sounds/cheer.mp3'));
+      _sfx.play(AssetSource('sounds/cheer.wav'));
 
   static Future<void> stop() async {
     await _tts.stop();
