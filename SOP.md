@@ -283,10 +283,36 @@ git status / git log      # Read-only git commands
 
 | File | Purpose | Update When |
 |---|---|---|
-| `SOP.md` | Rules & standards | Standards change |
-| `MILESTONES.md` | Phase & task tracker | Task status changes |
-| `README.md` | Public project overview | Major features added |
+| `SOP.md` | Rules & standards | Standards or workflow changes |
+| `MILESTONES.md` | Phase & task tracker | **After every task completed or blocked** |
+| `README.md` | Public project overview | Major features added or released |
 | `abc_kids_games.md` | Full PRD | Product decisions change |
+
+### MILESTONES.md — Mandatory Update Rules
+
+> `MILESTONES.md` is a **living document**. It must always reflect the true state of the project.
+
+**When to update MILESTONES.md:**
+- ✅ A task is completed → change `⏳ Pending` to `✅ Done` + add a note
+- 🔁 A task is blocked → change status to `🔁 In Loop` + add to the Blockers table
+- 🔄 Work starts on a task → change to `🔄 In Progress`
+- ❌ A task is cancelled → change to `❌ Cancelled` + note why
+
+**What to update every session:**
+1. The specific **task row** — status + notes column
+2. **Overall Project Status** table at the top if an area changes
+3. **Known Blockers** table — add new ones, strikethrough resolved ones
+4. **Progress bars** in the `📊 Progress Summary` section
+5. The **`Last Updated` date** at the top of the file
+6. **Immediate Next Actions** — remove done items, add new ones
+
+**Progress bar format:**
+```
+Phase N — Name    ██████████  100% (note)   ← complete
+Phase N — Name    ████████░░   80% (note)   ← in progress
+Phase N — Name    ░░░░░░░░░░    0% (note)   ← not started
+```
+Each `█` = 10%. Count completed tasks ÷ total tasks per phase to calculate %.
 
 ---
 

@@ -1,5 +1,5 @@
 # 🗺️ MILESTONES — ABC Kids: Tap & Learn
-## Living Project Tracker | Last Updated: May 5, 2026
+## Living Project Tracker | Last Updated: May 6, 2026
 
 > This document tracks **every phase, task, status, and decision** for the project.
 > Update status markers as work progresses.
@@ -31,11 +31,12 @@
 | .gitignore (all platforms) | ✅ Done |
 | README.md | ✅ Done |
 | Widget Tests (fixed) | ✅ Done |
-| Asset Files (images/sounds/fonts) | ⏳ Pending |
+| Asset Files (images/sounds/fonts) | ✅ Done |
 | Screen Implementation (full UI) | 🔄 In Progress |
 | AdMob Real IDs | ⏳ Pending |
 | Device Testing | ⏳ Pending |
 | Store Submission | ⏳ Pending |
+| SOP.md (code standards & rules) | ✅ Done |
 
 ---
 
@@ -67,9 +68,9 @@
 | Create `LetterModel` data class | ✅ Done | `lib/models/letter_model.dart` |
 | Create `AlphabetService` (JSON loader) | ✅ Done | Cached, async |
 | Create `AppConstants` (colors, strings, AdMob IDs) | ✅ Done | Test IDs in place |
-| Download Fredoka font from Google Fonts | ⏳ Pending | Place in `assets/fonts/` |
-| Download A–Z letter images (CC0 from OpenGameArt) | ⏳ Pending | 26 PNGs needed |
-| Download SFX sounds (CC0 from Freesound.org) | ⏳ Pending | success, error, cheer |
+| Download Fredoka font from Google Fonts | ✅ Done | `assets/fonts/` — variable font (wght+wdth) |
+| Download A–Z letter images (CC0 from OpenGameArt) | ✅ Done | 26 placeholder PNGs — replace with real art |
+| Download SFX sounds (CC0 from Freesound.org) | ✅ Done | success/error/cheer WAV generated |
 
 #### Day 5–7: Learn Mode Screen
 | Task | Status | Notes |
@@ -79,16 +80,18 @@
 | Build `OnboardingScreen` (welcome, first launch) | ✅ Done | 2 screens, shared_preferences |
 | Build `HomeScreen` (3 mode cards) | ✅ Done | Navigate to all 3 modes |
 | Build `LearnScreen` (letter + tap + TTS) | ✅ Done | Prev/Next navigation |
-| Test Learn Mode on emulator | ⏳ Pending | Needs assets first |
+| Test Learn Mode on emulator | ⏳ Pending | Needs owner permission to run |
 | Phonics tone tuning (TTS pitch/speed) | ⏳ Pending | Adjust after first test |
 
 ---
 
 ### ✅ PHASE 1 COMPLETION CRITERIA
+- [x] All assets (fonts + images + sounds) added ✅
+- [x] `flutter analyze` zero issues ✅
 - [ ] App launches without crashes
 - [ ] Onboarding shows on first launch only
 - [ ] Learn Mode: A–Z navigable with audio
-- [ ] All assets (images + fonts) loading correctly
+- [ ] All assets loading correctly on device
 
 ---
 
@@ -333,9 +336,9 @@
 
 | Blocker | Impact | Resolution |
 |---|---|---|
-| Fredoka font not downloaded yet | App uses fallback font | Download from Google Fonts → `assets/fonts/` |
-| Letter images (A–Z PNGs) not added | LearnScreen + PlayScreen show no images | Source CC0 PNGs from OpenGameArt |
-| SFX audio files not added | Success/error/cheer sounds won't play | Source from Freesound.org (CC0) |
+| ~~Fredoka font not downloaded yet~~ | ~~App uses fallback font~~ | ✅ Resolved — font in `assets/fonts/` |
+| ~~Letter images (A–Z PNGs) not added~~ | ~~LearnScreen + PlayScreen show no images~~ | ✅ Resolved — 26 placeholder PNGs added |
+| ~~SFX audio files not added~~ | ~~Success/error/cheer sounds won't play~~ | ✅ Resolved — WAV files generated |
 | Trace waypoints only defined for "A" | TraceScreen only works for letter A | Define waypoints for B–Z manually |
 | Real AdMob IDs not registered | Using test IDs — not earning revenue | Register app at admob.google.com |
 | Apple Developer account needed | Can't submit to App Store | Enroll at developer.apple.com ($99/yr) |
@@ -348,34 +351,29 @@
 # 📊 PROGRESS SUMMARY
 
 ```
-Phase 1 — Foundation        ████████░░  80% (assets pending)
+Phase 1 — Foundation        ██████████  95% (only device test pending)
 Phase 2 — Core Features     ██████░░░░  60% (waypoints B–Z pending)
-Phase 3 — Polish & Ads      ████░░░░░░  35% (assets + AdMob IDs pending)
+Phase 3 — Polish & Ads      ████░░░░░░  35% (AdMob IDs + real assets pending)
 Phase 4 — Testing & Launch  ░░░░░░░░░░   0% (not started)
 Phase 5 — Post-Launch v1.1  ░░░░░░░░░░   0% (upcoming)
 Phase 6 — Scale v2.0+       ░░░░░░░░░░   0% (upcoming)
 ```
 
-**Overall: ~35% complete**
+**Overall: ~45% complete**
 
 ---
 
 ## 🔴 IMMEDIATE NEXT ACTIONS (Do These First)
 
-1. **Download Fredoka font** → `assets/fonts/Fredoka-Regular.ttf` + `Fredoka-Bold.ttf`
-   - Source: https://fonts.google.com/specimen/Fredoka
+1. **Run the app on simulator** → verify Learn Mode end-to-end *(needs owner permission)*
 
-2. **Download 26 letter images (CC0)** → `assets/images/a_apple.png` ... `z_zebra.png`
-   - Source: https://opengameart.org
+2. **Define waypoints for letters B–Z** in `trace_screen.dart`
 
-3. **Download 3 SFX files** → `assets/sounds/success.mp3`, `error.mp3`, `cheer.mp3`
-   - Source: https://freesound.org
+3. **Replace placeholder images** with real CC0 art from OpenGameArt when available
 
-4. **Run the app** → `flutter run` → verify Learn Mode works end-to-end
+4. **Register AdMob app** → get real App ID and unit IDs → update `app_constants.dart`
 
-5. **Define waypoints for letters B–Z** in `trace_screen.dart`
-
-6. **Register AdMob app** → get real App ID and unit IDs → update `app_constants.dart`
+5. **Test TTS** on both Android + iOS — tune pitch/speed if needed
 
 ---
 
