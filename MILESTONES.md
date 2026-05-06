@@ -4,6 +4,8 @@
 > This document tracks **every phase, task, status, and decision** for the project.
 > Update status markers as work progresses.
 
+> 📌 **PLATFORM STRATEGY:** Android-first. Complete 100% Android → Publish on Play Store → Then start iOS.
+
 ---
 
 ## 📌 STATUS LEGEND
@@ -35,7 +37,7 @@
 | Screen Implementation (full UI) | 🔄 In Progress |
 | AdMob Real IDs | ⏳ Pending |
 | Device Testing | ⏳ Pending |
-| Store Submission | ⏳ Pending |
+| Store Submission | ⏳ Pending | Android only (Play Store first) |
 | SOP.md (code standards & rules) | ✅ Done |
 
 ---
@@ -174,8 +176,8 @@
 | Task | Status | Notes |
 |---|---|---|
 | AdMob SDK initialized in `main.dart` | ✅ Done | Child-directed config set |
-| `tagForChildDirectedTreatment: yes` | ✅ Done | Both Android + iOS |
-| `tagForUnderAgeOfConsent: yes` | ✅ Done | |
+| `tagForChildDirectedTreatment: yes` | ✅ Done | Android (iOS handled in Phase 5) |
+| `tagForUnderAgeOfConsent: yes` | ✅ Done | Android only for now |
 | Test interstitial ad unit (Play Mode) | ⏳ Pending | After every 2–3 rounds |
 | Test rewarded ad unit (optional bonus stars) | ⏳ Pending | |
 | Confirm no ads appear in Learn Mode | ⏳ Pending | PRD rule |
@@ -197,8 +199,8 @@
 |---|---|---|
 | TTS pitch tuned (1.1) | ✅ Done | AudioService.init() |
 | TTS speech rate tuned (0.45) | ✅ Done | Slow enough for 3–6 yr olds |
-| TTS tested on Android | ⏳ Pending | TTS engines differ by device |
-| TTS tested on iOS | ⏳ Pending | |
+| TTS tested on Android | ⏳ Pending | Android only for v1 |
+| TTS tested on iOS | ❌ Phase 5 | iOS release is post-Android launch |
 | SFX playback delay < 100ms | ⏳ Pending | |
 | All 3 SFX files added (success/error/cheer) | ⏳ Pending | Freesound CC0 |
 
@@ -216,25 +218,27 @@
 
 ---
 
-# PHASE 4 — TESTING & LAUNCH
+# PHASE 4 — TESTING & LAUNCH (ANDROID)
 ## 🗓️ Timeline: Week 4 (Days 22–28)
-## 🎯 Goal: Stable, tested, submitted to both stores
+## 🎯 Goal: Stable Android app tested 100% → Published on Google Play Store
+
+> ⚠️ **iOS is NOT in scope for this phase.** iOS release starts only after Android v1.0 is live.
 
 ---
 
 ### 📋 TASK BREAKDOWN
 
-#### Day 22–23: Full Device Testing
+#### Day 22–23: Full Device Testing (Android Only)
 | Task | Status | Notes |
 |---|---|---|
 | Test on Android emulator (API 33+) | ⏳ Pending | |
 | Test on physical Android device | ⏳ Pending | |
-| Test on iOS simulator | ⏳ Pending | |
-| Test on physical iPhone | ⏳ Pending | |
+| Test on iOS simulator | ❌ Phase 5 | Post Android launch |
+| Test on physical iPhone | ❌ Phase 5 | Post Android launch |
 | Test all 3 modes fully (A–Z) | ⏳ Pending | |
 | Test first-launch onboarding flow | ⏳ Pending | |
 | Test offline mode (airplane mode on) | ⏳ Pending | Critical — offline-first |
-| Test small screen (5") and large screen (6.7") | ⏳ Pending | |
+| Test small screen (5") and large screen (6.7") | ⏳ Pending | Android screen sizes |
 | Run `flutter analyze` | ⏳ Pending | Zero lint errors required |
 | Run `flutter test` | ⏳ Pending | All widget tests pass |
 
@@ -244,29 +248,29 @@
 | Fix all issues found in Day 22–23 | ⏳ Pending | |
 | Crash-free rate target: > 99% | ⏳ Pending | |
 
-#### Day 25: Store Submission Prep
+#### Day 25: Store Submission Prep (Android / Play Store)
 | Task | Status | Notes |
 |---|---|---|
 | App name: "ABC Kids: Tap & Learn" | ⏳ Pending | |
 | Short description (80 chars) | ⏳ Pending | |
 | Full description (4000 chars) | ⏳ Pending | |
-| Screenshots (phone + tablet) | ⏳ Pending | Min 4 per store |
-| Feature graphic (1024x500) | ⏳ Pending | Play Store |
-| App icon (512x512 for Play, 1024x1024 for App Store) | ⏳ Pending | |
+| Screenshots (phone + tablet) | ⏳ Pending | Min 4 Android screenshots |
+| Feature graphic (1024x500) | ⏳ Pending | Play Store only |
+| App icon (512x512 for Play Store) | ⏳ Pending | |
 | Privacy policy URL | ⏳ Pending | Required — even for no-data apps |
-| Build release APK/AAB (`flutter build appbundle`) | ⏳ Pending | |
-| Build iOS IPA (`flutter build ipa`) | ⏳ Pending | |
+| Build release AAB (`flutter build appbundle`) | ⏳ Pending | Android only |
+| Build iOS IPA (`flutter build ipa`) | ❌ Phase 5 | After Android launch |
 | Sign Android release (keystore) | ⏳ Pending | Generate & store securely |
-| Sign iOS release (Xcode + Apple Developer account) | ⏳ Pending | |
+| Sign iOS release (Xcode + Apple Developer) | ❌ Phase 5 | After Android launch |
 
-#### Day 26–27: Submit for Review
+#### Day 26–27: Submit for Review (Android Only)
 | Task | Status | Notes |
 |---|---|---|
 | Submit to Google Play Store (Internal → Production) | ⏳ Pending | |
-| Submit to Apple App Store | ⏳ Pending | |
-| Set app content rating (Everyone / 4+) | ⏳ Pending | |
+| Submit to Apple App Store | ❌ Phase 5 | After Android launch |
+| Set app content rating (Everyone) | ⏳ Pending | Play Store |
 | Mark as "Designed for Families" on Play Store | ⏳ Pending | |
-| Set age range 3–6 on App Store | ⏳ Pending | |
+| Set age range 3–6 on App Store | ❌ Phase 5 | After Android launch |
 
 #### Day 28: Buffer
 | Task | Status | Notes |
@@ -279,17 +283,18 @@
 ### ✅ PHASE 4 COMPLETION CRITERIA
 - [ ] `flutter analyze` returns zero errors
 - [ ] `flutter test` all tests pass
-- [ ] App works fully in airplane mode
-- [ ] Submitted to both stores
-- [ ] Content rating set correctly on both stores
+- [ ] App works fully in airplane mode (Android)
+- [ ] Submitted to Google Play Store ✅
+- [ ] Content rating set on Play Store
+- [ ] "Designed for Families" tag applied
 
 ---
 
 ---
 
-# PHASE 5 — POST-LAUNCH (v1.1)
-## 🗓️ Timeline: 2–4 weeks after v1.0 launch
-## 🎯 Goal: Polish based on user feedback, improve retention
+# PHASE 5 — POST-LAUNCH v1.1 + iOS RELEASE
+## 🗓️ Timeline: 2–4 weeks after Android v1.0 launch
+## 🎯 Goal: Polish based on user feedback + full iOS launch
 
 ---
 
@@ -297,6 +302,13 @@
 
 | Task | Priority |
 |---|---|
+| **iOS — Test on iOS simulator** | 🔴 High |
+| **iOS — Test on physical iPhone** | 🔴 High |
+| **iOS — TTS QA on iOS** | 🔴 High |
+| **iOS — Build IPA (`flutter build ipa`)** | 🔴 High |
+| **iOS — Sign with Xcode + Apple Developer account ($99/yr)** | 🔴 High |
+| **iOS — Submit to App Store** | 🔴 High |
+| **iOS — Set age range 3–6 on App Store** | 🔴 High |
 | Add Lottie celebration animations | High |
 | Add mascot character (happy reaction) | Medium |
 | Improve Trace Mode waypoints for all 26 letters | High |
@@ -341,7 +353,7 @@
 | ~~SFX audio files not added~~ | ~~Success/error/cheer sounds won't play~~ | ✅ Resolved — WAV files generated |
 | Trace waypoints only defined for "A" | TraceScreen only works for letter A | Define waypoints for B–Z manually |
 | Real AdMob IDs not registered | Using test IDs — not earning revenue | Register app at admob.google.com |
-| Apple Developer account needed | Can't submit to App Store | Enroll at developer.apple.com ($99/yr) |
+| Apple Developer account needed | Can't submit to App Store | ⏳ Phase 5 only — not needed for Android |
 | Privacy policy URL needed | Required by both stores | Create simple policy page |
 
 ---

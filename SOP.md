@@ -257,16 +257,21 @@ git status / git log      # Read-only git commands
 
 ## 📱 PLATFORM NOTES
 
-### Android
+> ⚠️ **RELEASE STRATEGY: Android-first.**
+> Complete Android 100% → Publish on Google Play Store → Then start iOS.
+> Do NOT work on iOS submission until Android v1.0 is live.
+
+### Android (v1 — Active)
 - Min SDK: 21 (Android 5.0)
 - Target SDK: 34
 - Package: `com.hashirmaroof.abc_kids_game`
 - Child-directed AdMob: `tagForChildDirectedTreatment: yes`
 
-### iOS
+### iOS (Phase 5 — After Android Launch)
 - Min iOS: 12.0
 - Bundle ID: `com.hashirmaroof.abc_kids_game`
 - Child-directed AdMob: `tagForChildDirectedTreatment: yes`, `tagForUnderAgeOfConsent: yes`
+- Requires Apple Developer account ($99/yr) — enroll only when Android is live
 
 ---
 

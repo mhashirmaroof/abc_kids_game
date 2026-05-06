@@ -14,6 +14,7 @@
 > | Online resource downloads | ✅ Allowed — only open/public data |
 > | Ads | ✅ Google AdMob — child-directed mode enabled |
 > | COPPA / GDPR risk | ✅ Eliminated — no user data collected |
+> | **Platform (v1)** | ✅ **Android only — iOS launches after Android v1.0 is live** |
 
 ---
 
@@ -453,23 +454,27 @@ Reusable system for all future apps:
 
 ---
 
-### Week 4 — Testing & Launch
+### Week 4 — Testing & Launch (Android Only)
 | Day | Task |
 |---|---|
-| 1–2 | Full device testing (Android + iOS) |
+| 1–2 | Full Android testing (emulator API 33+ + physical device) |
 | 3 | Bug fixes |
-| 4 | Play Store / App Store submission setup |
-| 5 | Submit for review |
-| 6–7 | Buffer / fix any rejection issues |
+| 4 | Play Store submission setup (AAB + keystore + store listing) |
+| 5 | Submit to Google Play Store for review |
+| 6–7 | Buffer / fix any Play Store rejection issues |
+
+> ⚠️ **iOS is NOT in this phase.** iOS release begins only after Android v1.0 is live on the Play Store.
+> See Phase 5 in MILESTONES.md for full iOS launch plan.
 
 ---
 
 # 14. 📈 SCALING PLAN
 
-## Phase 2:
+## Phase 2 (v1.1 — Post Android Launch):
 
-* Full A–Z
+* Full A–Z polish
 * Better animations
+* **iOS release (App Store)**
 
 ## Phase 3:
 
@@ -477,7 +482,7 @@ Reusable system for all future apps:
 
 ## Phase 4:
 
-* Launch other apps
+* Launch other apps (Math, Colors, Puzzle)
 
 ---
 
@@ -620,6 +625,7 @@ This idea is now:
 ✅ Onboarding flow defined (2 screens, shared_preferences)
 ✅ Competitive position clear
 ✅ KPI targets defined and measurable
+✅ **Android-first release strategy — iOS follows after Android v1.0 is live**
 
 ---
 
