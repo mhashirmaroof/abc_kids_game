@@ -15,9 +15,9 @@ class AppFonts {
 
 class AppAssets {
   static const alphabetData  = 'assets/data/alphabet.json';
-  static const successSound  = 'assets/sounds/success.mp3';
-  static const errorSound    = 'assets/sounds/error.mp3';
-  static const cheerSound    = 'assets/sounds/cheer.mp3';
+  static const successSound  = 'assets/sounds/success.wav';
+  static const errorSound    = 'assets/sounds/error.wav';
+  static const cheerSound    = 'assets/sounds/cheer.wav';
 }
 
 class AppStrings {
