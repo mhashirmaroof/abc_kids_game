@@ -5,67 +5,71 @@ import '../providers/app_providers.dart';
 import '../services/audio_service.dart';
 
 // ── Waypoints for all 26 letters (normalised 0.0–1.0 coords) ─────────────────
+// Rules: NO duplicate points. Each point is a unique position the child must visit.
 const Map<String, List<Offset>> _letterWaypoints = {
   'A': [
-    Offset(0.50, 0.05), Offset(0.38, 0.30), Offset(0.25, 0.55),
-    Offset(0.12, 0.92), Offset(0.35, 0.55), Offset(0.65, 0.55),
-    Offset(0.75, 0.30), Offset(0.88, 0.92),
+    Offset(0.50, 0.05), Offset(0.35, 0.35),
+    Offset(0.20, 0.65), Offset(0.12, 0.92),
+    Offset(0.35, 0.55), Offset(0.65, 0.55),
+    Offset(0.80, 0.65), Offset(0.88, 0.92),
   ],
   'B': [
     Offset(0.22, 0.08), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.55, 0.08), Offset(0.75, 0.25), Offset(0.55, 0.50),
-    Offset(0.75, 0.72), Offset(0.55, 0.92),
+    Offset(0.55, 0.08), Offset(0.78, 0.28), Offset(0.55, 0.50),
+    Offset(0.78, 0.72), Offset(0.55, 0.92),
   ],
   'C': [
-    Offset(0.75, 0.18), Offset(0.50, 0.05), Offset(0.25, 0.22),
-    Offset(0.12, 0.50), Offset(0.25, 0.78), Offset(0.50, 0.95),
-    Offset(0.75, 0.82),
+    Offset(0.78, 0.18), Offset(0.50, 0.05), Offset(0.22, 0.22),
+    Offset(0.10, 0.50), Offset(0.22, 0.78), Offset(0.50, 0.95),
+    Offset(0.78, 0.82),
   ],
   'D': [
     Offset(0.22, 0.08), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.50, 0.08), Offset(0.80, 0.28), Offset(0.90, 0.50),
-    Offset(0.80, 0.72), Offset(0.50, 0.92),
+    Offset(0.52, 0.08), Offset(0.82, 0.28), Offset(0.92, 0.50),
+    Offset(0.82, 0.72), Offset(0.52, 0.92),
   ],
   'E': [
-    Offset(0.72, 0.08), Offset(0.22, 0.08), Offset(0.22, 0.50),
-    Offset(0.62, 0.50), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.72, 0.92),
+    Offset(0.72, 0.08), Offset(0.22, 0.08),
+    Offset(0.22, 0.50), Offset(0.62, 0.50),
+    Offset(0.22, 0.92), Offset(0.72, 0.92),
   ],
   'F': [
-    Offset(0.72, 0.08), Offset(0.22, 0.08), Offset(0.22, 0.50),
-    Offset(0.62, 0.50), Offset(0.22, 0.50), Offset(0.22, 0.92),
+    Offset(0.72, 0.08), Offset(0.22, 0.08),
+    Offset(0.22, 0.50), Offset(0.62, 0.50),
+    Offset(0.22, 0.92),
   ],
   'G': [
-    Offset(0.75, 0.18), Offset(0.50, 0.05), Offset(0.25, 0.22),
-    Offset(0.12, 0.50), Offset(0.25, 0.78), Offset(0.50, 0.95),
-    Offset(0.75, 0.82), Offset(0.75, 0.50), Offset(0.52, 0.50),
+    Offset(0.78, 0.18), Offset(0.50, 0.05), Offset(0.22, 0.22),
+    Offset(0.10, 0.50), Offset(0.22, 0.78), Offset(0.50, 0.95),
+    Offset(0.78, 0.82), Offset(0.78, 0.50), Offset(0.52, 0.50),
   ],
   'H': [
     Offset(0.22, 0.08), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.22, 0.50), Offset(0.78, 0.50),
+    Offset(0.78, 0.50),                      // crossbar (only once)
     Offset(0.78, 0.08), Offset(0.78, 0.92),
   ],
   'I': [
-    Offset(0.35, 0.08), Offset(0.65, 0.08), Offset(0.50, 0.08),
-    Offset(0.50, 0.50), Offset(0.50, 0.92),
+    Offset(0.35, 0.08), Offset(0.65, 0.08),
+    Offset(0.50, 0.50),
     Offset(0.35, 0.92), Offset(0.65, 0.92),
   ],
   'J': [
-    Offset(0.35, 0.08), Offset(0.65, 0.08), Offset(0.65, 0.50),
-    Offset(0.65, 0.78), Offset(0.52, 0.95), Offset(0.30, 0.92),
-    Offset(0.20, 0.78),
+    Offset(0.35, 0.08), Offset(0.65, 0.08),
+    Offset(0.65, 0.50), Offset(0.65, 0.78),
+    Offset(0.52, 0.95), Offset(0.30, 0.92), Offset(0.20, 0.78),
   ],
   'K': [
     Offset(0.22, 0.08), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.22, 0.50), Offset(0.75, 0.08),
-    Offset(0.22, 0.50), Offset(0.75, 0.92),
+    Offset(0.75, 0.08),                      // upper arm (only once)
+    Offset(0.75, 0.92),                      // lower arm
   ],
   'L': [
     Offset(0.25, 0.08), Offset(0.25, 0.50),
     Offset(0.25, 0.92), Offset(0.72, 0.92),
   ],
   'M': [
-    Offset(0.10, 0.92), Offset(0.10, 0.08), Offset(0.50, 0.55),
+    Offset(0.10, 0.92), Offset(0.10, 0.08),
+    Offset(0.50, 0.55),
     Offset(0.90, 0.08), Offset(0.90, 0.92),
   ],
   'N': [
@@ -75,12 +79,12 @@ const Map<String, List<Offset>> _letterWaypoints = {
   'O': [
     Offset(0.50, 0.05), Offset(0.80, 0.22), Offset(0.92, 0.50),
     Offset(0.80, 0.78), Offset(0.50, 0.95), Offset(0.20, 0.78),
-    Offset(0.08, 0.50), Offset(0.20, 0.22),
+    Offset(0.08, 0.50), Offset(0.20, 0.22), Offset(0.50, 0.05),
   ],
   'P': [
     Offset(0.22, 0.08), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.22, 0.08), Offset(0.55, 0.08), Offset(0.75, 0.25),
-    Offset(0.55, 0.50), Offset(0.22, 0.50),
+    Offset(0.55, 0.08), Offset(0.75, 0.25),
+    Offset(0.55, 0.50),                      // loop closes back — no duplicate of 0.22,0.50
   ],
   'Q': [
     Offset(0.50, 0.05), Offset(0.80, 0.22), Offset(0.92, 0.50),
@@ -90,17 +94,17 @@ const Map<String, List<Offset>> _letterWaypoints = {
   ],
   'R': [
     Offset(0.22, 0.08), Offset(0.22, 0.50), Offset(0.22, 0.92),
-    Offset(0.22, 0.08), Offset(0.55, 0.08), Offset(0.75, 0.25),
-    Offset(0.55, 0.50), Offset(0.22, 0.50), Offset(0.78, 0.92),
+    Offset(0.55, 0.08), Offset(0.75, 0.25),
+    Offset(0.55, 0.50), Offset(0.78, 0.92),
   ],
   'S': [
-    Offset(0.75, 0.15), Offset(0.50, 0.05), Offset(0.25, 0.18),
-    Offset(0.22, 0.35), Offset(0.50, 0.50), Offset(0.78, 0.65),
-    Offset(0.75, 0.82), Offset(0.50, 0.95), Offset(0.25, 0.85),
+    Offset(0.78, 0.15), Offset(0.50, 0.05), Offset(0.22, 0.18),
+    Offset(0.20, 0.35), Offset(0.50, 0.50), Offset(0.80, 0.65),
+    Offset(0.78, 0.82), Offset(0.50, 0.95), Offset(0.22, 0.85),
   ],
   'T': [
-    Offset(0.15, 0.08), Offset(0.85, 0.08),
-    Offset(0.50, 0.08), Offset(0.50, 0.50), Offset(0.50, 0.92),
+    Offset(0.15, 0.08), Offset(0.50, 0.08), Offset(0.85, 0.08),
+    Offset(0.50, 0.50), Offset(0.50, 0.92),
   ],
   'U': [
     Offset(0.18, 0.08), Offset(0.18, 0.65), Offset(0.28, 0.88),
@@ -108,26 +112,31 @@ const Map<String, List<Offset>> _letterWaypoints = {
     Offset(0.82, 0.08),
   ],
   'V': [
-    Offset(0.12, 0.08), Offset(0.35, 0.60),
-    Offset(0.50, 0.92), Offset(0.65, 0.60), Offset(0.88, 0.08),
+    Offset(0.12, 0.08), Offset(0.28, 0.42),
+    Offset(0.50, 0.92),
+    Offset(0.72, 0.42), Offset(0.88, 0.08),
   ],
   'W': [
-    Offset(0.08, 0.08), Offset(0.25, 0.88), Offset(0.50, 0.55),
-    Offset(0.75, 0.88), Offset(0.92, 0.08),
+    Offset(0.08, 0.08), Offset(0.22, 0.75),
+    Offset(0.38, 0.42), Offset(0.50, 0.75),
+    Offset(0.65, 0.42), Offset(0.80, 0.75), Offset(0.92, 0.08),
   ],
   'X': [
-    Offset(0.15, 0.08), Offset(0.50, 0.50), Offset(0.85, 0.92),
-    Offset(0.50, 0.50),
-    Offset(0.85, 0.08), Offset(0.50, 0.50), Offset(0.15, 0.92),
+    Offset(0.15, 0.08), Offset(0.38, 0.35),
+    Offset(0.50, 0.50),                      // center — only once
+    Offset(0.62, 0.65), Offset(0.85, 0.92),
+    Offset(0.85, 0.08), Offset(0.62, 0.35),
+    Offset(0.38, 0.65), Offset(0.15, 0.92),
   ],
   'Y': [
-    Offset(0.15, 0.08), Offset(0.50, 0.50), Offset(0.85, 0.08),
-    Offset(0.50, 0.50), Offset(0.50, 0.92),
+    Offset(0.15, 0.08), Offset(0.32, 0.32),
+    Offset(0.50, 0.50),                      // center — only once
+    Offset(0.68, 0.32), Offset(0.85, 0.08),
+    Offset(0.50, 0.75), Offset(0.50, 0.92),
   ],
   'Z': [
     Offset(0.15, 0.08), Offset(0.85, 0.08),
     Offset(0.15, 0.92), Offset(0.85, 0.92),
-    Offset(0.50, 0.50),
   ],
 };
 
@@ -150,20 +159,33 @@ class _TraceScreenState extends ConsumerState<TraceScreen> {
       _letterWaypoints[_currentLetter] ?? _letterWaypoints['A']!;
 
   void _onPanUpdate(DragUpdateDetails d, Size size) {
-    if (_completed) return;
-    setState(() => _drawnPoints.add(d.localPosition));
+    // Do NOT return early when completed — child can keep drawing freely
     final wps = _waypoints;
+    bool changed = false;
     for (int i = 0; i < wps.length; i++) {
       if (_hitWaypoints.contains(i)) continue;
       final wp = Offset(wps[i].dx * size.width, wps[i].dy * size.height);
-      if ((d.localPosition - wp).distance < 22.0) {
+      if ((d.localPosition - wp).distance < 30.0) {   // 30px — easier for kids
         _hitWaypoints.add(i);
         _hitCount++;
+        changed = true;
       }
     }
-    if (_hitCount >= (_waypoints.length * 0.7).ceil() && !_completed) {
+    // Single setState per pan event for performance
+    setState(() => _drawnPoints.add(d.localPosition));
+    // Trigger success only once, after ALL waypoints are hit (100%)
+    if (!_completed && _hitCount >= _waypoints.length) {
       setState(() => _completed = true);
       AudioService.playSuccess();
+      // Auto-advance to next letter after 2 seconds
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          final total = ref.read(alphabetProvider).valueOrNull?.length ?? 26;
+          _nextLetter(total);
+        }
+      });
+    } else if (changed) {
+      setState(() {}); // repaint waypoint colours
     }
   }
 
@@ -256,7 +278,7 @@ class _TraceScreenState extends ConsumerState<TraceScreen> {
                         decoration: BoxDecoration(
                             color: const Color(AppColors.green),
                             borderRadius: BorderRadius.circular(16)),
-                        child: const Text('🎉 Great job! Keep going!',
+                        child: const Text('🎉 Amazing! Next letter coming…',
                             style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                       )
                     : Container(
