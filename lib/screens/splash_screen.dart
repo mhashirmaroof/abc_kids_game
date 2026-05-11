@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
+import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'onboarding_screen.dart';
 
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2200));
+    await Future.delayed(const Duration(milliseconds: 2600));
     if (!mounted) return;
     final prefs = await SharedPreferences.getInstance();
     final isFirstLaunch = prefs.getBool('first_launch') ?? true;
@@ -37,95 +38,87 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(AppColors.bgLight),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      body: GradientBackground(
+        child: Stack(
           children: [
-            // App icon circle
-            Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                color: const Color(AppColors.blue),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(AppColors.blue).withValues(alpha: 0.40),
-                    blurRadius: 30,
-                    offset: const Offset(0, 8),
+            const StarField(),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Glowing ABC logo
+                  NeonCard(
+                    glowColor: const Color(AppColors.neonBlue),
+                    cardColor: const Color(0x22FFFFFF),
+                    borderRadius: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                    child: NeonText(
+                      'ABC',
+                      fontSize: 72,
+                      color: const Color(AppColors.neonBlue),
+                    ),
+                  )
+                      .animate()
+                      .scaleXY(begin: 0.5, end: 1.0, duration: 700.ms, curve: Curves.elasticOut),
+
+                  const SizedBox(height: 32),
+
+                  // App name
+                  NeonText(
+                    'ABC Kids',
+                    fontSize: 42,
+                    color: const Color(AppColors.neonYellow),
+                  )
+                      .animate()
+                      .fadeIn(delay: 500.ms, duration: 500.ms)
+                      .slideY(begin: 0.3, end: 0),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    'Tap · Learn · Trace',
+                    style: TextStyle(
+                      fontFamily: AppFonts.fredoka,
+                      fontSize: 18,
+                      color: const Color(AppColors.textSecondary),
+                      letterSpacing: 2,
+                    ),
+                  ).animate().fadeIn(delay: 800.ms),
+
+                  const SizedBox(height: 64),
+
+                  // Animated dots
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(3, (i) {
+                      final colors = [
+                        const Color(AppColors.neonBlue),
+                        const Color(AppColors.neonPurple),
+                        const Color(AppColors.neonCoral),
+                      ];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: colors[i],
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: colors[i].withValues(alpha: 0.8), blurRadius: 10)],
+                        ),
+                      )
+                          .animate(onPlay: (c) => c.repeat())
+                          .scaleXY(
+                            begin: 0.5,
+                            end: 1.4,
+                            delay: Duration(milliseconds: i * 180),
+                            duration: 500.ms,
+                          )
+                          .then()
+                          .scaleXY(end: 0.5, duration: 500.ms);
+                    }),
                   ),
                 ],
               ),
-              child: const Center(
-                child: Text(
-                  'ABC',
-                  style: TextStyle(
-                    fontSize: 46,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ),
-            )
-                .animate()
-                .scaleXY(begin: 0.6, end: 1.0, duration: 600.ms, curve: Curves.elasticOut),
-
-            const SizedBox(height: 28),
-
-            // App name
-            const Text(
-              'ABC Kids',
-              style: TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.bold,
-                color: Color(AppColors.blue),
-                letterSpacing: 1.5,
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 400.ms, duration: 500.ms)
-                .slideY(begin: 0.3, end: 0),
-
-            const SizedBox(height: 8),
-
-            Text(
-              'Tap & Learn',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.grey.shade500,
-                fontWeight: FontWeight.w600,
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 600.ms, duration: 400.ms),
-
-            const SizedBox(height: 60),
-
-            // Loading dots
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(3, (i) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    color: Color(AppColors.yellow),
-                    shape: BoxShape.circle,
-                  ),
-                )
-                    .animate(onPlay: (c) => c.repeat())
-                    .scaleXY(
-                      begin: 0.5,
-                      end: 1.3,
-                      delay: Duration(milliseconds: i * 150),
-                      duration: 500.ms,
-                    )
-                    .then()
-                    .scaleXY(end: 0.5, duration: 500.ms);
-              }),
             ),
           ],
         ),

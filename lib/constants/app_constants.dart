@@ -1,12 +1,36 @@
 // App-wide constants
 
 class AppColors {
+  // Legacy (kept for trace painter)
   static const yellow  = 0xFFFFD93D;
   static const blue    = 0xFF4D96FF;
   static const red     = 0xFFFF6B6B;
   static const green   = 0xFF6BCB77;
   static const white   = 0xFFFFFFFF;
   static const bgLight = 0xFFFFF8F0;
+
+  // ── New Design System ─────────────────────────────────────────────────────
+  // Backgrounds
+  static const bgDark1      = 0xFF0D0D2B;  // deep navy
+  static const bgDark2      = 0xFF1A1A4E;  // mid navy
+  static const bgDark3      = 0xFF16213E;  // dark blue
+
+  // Accent colors
+  static const neonBlue     = 0xFF4DFFEF;  // electric cyan
+  static const neonPurple   = 0xFFBB86FC;  // soft purple
+  static const neonYellow   = 0xFFFFE566;  // warm yellow
+  static const neonCoral    = 0xFFFF6584;  // coral pink
+  static const neonGreen    = 0xFF69FF97;  // lime green
+  static const neonOrange   = 0xFFFFAA5C;  // warm orange
+
+  // Card colors (semi-transparent)
+  static const cardLearn    = 0xFF1E3A5F;  // deep blue card
+  static const cardPlay     = 0xFF3D1E5F;  // deep purple card
+  static const cardTrace    = 0xFF1E5F3A;  // deep green card
+
+  // Text
+  static const textPrimary  = 0xFFFFFFFF;
+  static const textSecondary= 0xFFB0B8D4;
 }
 
 class AppFonts {

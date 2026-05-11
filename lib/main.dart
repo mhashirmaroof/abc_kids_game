@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'constants/app_constants.dart';
 import 'screens/splash_screen.dart';
 import 'services/audio_service.dart';
+import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Force portrait only
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Transparent status bar — shows gradient behind it
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+  ));
 
   // AdMob: child-directed treatment (REQUIRED for kids app)
   await MobileAds.instance.initialize();
@@ -31,13 +45,7 @@ class ABCKidsApp extends StatelessWidget {
     return MaterialApp(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: AppFonts.fredoka,
-        scaffoldBackgroundColor: const Color(AppColors.bgLight),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(AppColors.blue),
-        ),
-      ),
+      theme: AppTheme.theme,
       home: const SplashScreen(),
     );
   }

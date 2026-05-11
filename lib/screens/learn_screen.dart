@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../constants/app_constants.dart';
+import '../theme/app_theme.dart';
 import '../providers/app_providers.dart';
 import '../services/audio_service.dart';
 
@@ -13,180 +14,203 @@ class LearnScreen extends ConsumerWidget {
     final alphabetAsync = ref.watch(alphabetProvider);
     final index = ref.watch(currentIndexProvider);
 
+    // Cycle through accent colors per letter
+    final accentColors = [
+      const Color(AppColors.neonBlue),
+      const Color(AppColors.neonPurple),
+      const Color(AppColors.neonCoral),
+      const Color(AppColors.neonGreen),
+      const Color(AppColors.neonOrange),
+      const Color(AppColors.neonYellow),
+    ];
+    final accent = accentColors[index % accentColors.length];
+
     return Scaffold(
-      backgroundColor: const Color(AppColors.bgLight),
-      appBar: AppBar(
-        title: const Text('Learn Mode 📖',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(AppColors.yellow),
-        foregroundColor: Colors.white,
-      ),
-      body: alphabetAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
-        data: (alphabet) {
-          final letter = alphabet[index];
-          return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+      body: GradientBackground(
+        child: Stack(
+          children: [
+            const StarField(),
+            SafeArea(
               child: Column(
                 children: [
-                  // Progress counter
+                  // ── AppBar ──────────────────────────────────────────
                   Padding(
-                    padding: const EdgeInsets.only(top: 12, bottom: 4),
-                    child: Text(
-                      '${index + 1} / ${alphabet.length}',
-                      style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey.shade500,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  // Letter card (tap to hear letter)
-                  GestureDetector(
-                    onTap: () => AudioService.speak(letter.letter),
-                    child: Container(
-                      width: 160,
-                      height: 160,
-                      decoration: BoxDecoration(
-                        color: const Color(AppColors.blue),
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: [
-                          BoxShadow(
-                              color: const Color(AppColors.blue).withValues(alpha: 0.35),
-                              blurRadius: 18,
-                              offset: const Offset(0, 6)),
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          letter.letter,
-                          style: const TextStyle(
-                              fontSize: 96,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  )
-                      .animate(onPlay: (c) => c.repeat(reverse: true))
-                      .scaleXY(end: 1.05, duration: 800.ms),
-
-                  const SizedBox(height: 28),
-
-                  // Letter image
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      letter.image,
-                      width: 150,
-                      height: 150,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: const Icon(Icons.image_not_supported,
-                            size: 60, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Word (tap to hear word)
-                  GestureDetector(
-                    onTap: () => AudioService.speak(letter.word),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 28, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(AppColors.yellow).withValues(alpha: 0.25),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: const Color(AppColors.yellow), width: 2),
-                      ),
-                      child: Text(
-                        '${letter.word} 🔊',
-                        style: const TextStyle(
-                            fontSize: 32, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  // Navigation row — height ≥ 80px per PRD
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 28),
+                    padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: _NavButton(
-                            label: '← Prev',
-                            color: const Color(AppColors.red),
-                            onTap: index > 0
-                                ? () => ref
-                                    .read(currentIndexProvider.notifier)
-                                    .state = index - 1
-                                : null,
-                          ),
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _NavButton(
-                            label: 'Next →',
-                            color: const Color(AppColors.green),
-                            onTap: index < alphabet.length - 1
-                                ? () => ref
-                                    .read(currentIndexProvider.notifier)
-                                    .state = index + 1
-                                : null,
-                          ),
+                        const Expanded(
+                          child: Text('Learn Mode 📖',
+                              style: TextStyle(fontFamily: AppFonts.fredoka, fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
                         ),
                       ],
                     ),
                   ),
+
+                  alphabetAsync.when(
+                    loading: () => const Expanded(child: Center(child: CircularProgressIndicator(color: Colors.white))),
+                    error: (e, _) => Expanded(child: Center(child: Text('Error: $e', style: const TextStyle(color: Colors.white)))),
+                    data: (alphabet) {
+                      final letter = alphabet[index];
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 8),
+                              // Progress
+                              Text(
+                                '${index + 1} / ${alphabet.length}',
+                                style: TextStyle(
+                                  fontFamily: AppFonts.fredoka,
+                                  fontSize: 15,
+                                  color: const Color(AppColors.textSecondary),
+                                ),
+                              ),
+
+                              const Spacer(),
+
+                              // Letter card (tap to hear)
+                              GestureDetector(
+                                onTap: () => AudioService.speak(letter.letter),
+                                child: NeonCard(
+                                  glowColor: accent,
+                                  cardColor: accent.withValues(alpha: 0.12),
+                                  borderRadius: 36,
+                                  padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 20),
+                                  child: NeonText(letter.letter, fontSize: 120, color: accent),
+                                ),
+                              )
+                                  .animate(key: ValueKey(index))
+                                  .scaleXY(begin: 0.7, end: 1.0, duration: 400.ms, curve: Curves.elasticOut),
+
+                              const SizedBox(height: 28),
+
+                              // Image
+                              NeonCard(
+                                glowColor: accent.withValues(alpha: 0.6),
+                                cardColor: const Color(0x22FFFFFF),
+                                borderRadius: 24,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(24),
+                                  child: Image.asset(
+                                    letter.image,
+                                    width: 140,
+                                    height: 140,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
+                                      width: 140,
+                                      height: 140,
+                                      color: Colors.transparent,
+                                      child: Center(
+                                        child: Text(letter.word[0], style: TextStyle(fontSize: 80, color: accent.withValues(alpha: 0.3))),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ).animate(key: ValueKey('img_$index')).fadeIn(duration: 400.ms),
+
+                              const SizedBox(height: 24),
+
+                              // Word tap to hear
+                              GestureDetector(
+                                onTap: () => AudioService.speak(letter.word),
+                                child: NeonCard(
+                                  glowColor: const Color(AppColors.neonYellow),
+                                  cardColor: const Color(0x22FFFFFF),
+                                  borderRadius: 20,
+                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      NeonText(letter.word, fontSize: 30, color: const Color(AppColors.neonYellow)),
+                                      const SizedBox(width: 10),
+                                      const Icon(Icons.volume_up_rounded, color: Color(AppColors.neonYellow), size: 28),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              const Spacer(),
+
+                              // Navigation
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 24),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: _NavBtn(
+                                        label: '← Prev',
+                                        color: const Color(AppColors.neonCoral),
+                                        onTap: index > 0
+                                            ? () => ref.read(currentIndexProvider.notifier).state = index - 1
+                                            : null,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: _NavBtn(
+                                        label: 'Next →',
+                                        color: const Color(AppColors.neonGreen),
+                                        onTap: index < alphabet.length - 1
+                                            ? () => ref.read(currentIndexProvider.notifier).state = index + 1
+                                            : null,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 }
 
-class _NavButton extends StatelessWidget {
+class _NavBtn extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback? onTap;
-
-  const _NavButton({required this.label, required this.color, this.onTap});
+  const _NavBtn({required this.label, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 80,
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.grey.shade300,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24)),
-          textStyle:
-              const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    final isDisabled = onTap == null;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 64,
+        decoration: BoxDecoration(
+          color: isDisabled ? const Color(0x33FFFFFF) : color.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: isDisabled ? Colors.white24 : color.withValues(alpha: 0.6), width: 1.5),
+          boxShadow: isDisabled ? [] : [BoxShadow(color: color.withValues(alpha: 0.25), blurRadius: 12)],
         ),
-        child: Text(label),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: AppFonts.fredoka,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isDisabled ? Colors.white38 : color,
+            ),
+          ),
+        ),
       ),
     );
   }
 }
+
