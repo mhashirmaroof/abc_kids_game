@@ -5,7 +5,6 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_theme.dart';
 import '../providers/app_providers.dart';
 import '../services/audio_service.dart';
 import '../models/letter_model.dart';
@@ -27,8 +26,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
   int _roundsPlayed = 0;
   InterstitialAd? _interstitialAd;
 
-  static String get _interstitialId =>
-      AdConfig.androidInterstitialId; // Android-first
+  static String get _interstitialId => AdConfig.androidInterstitialId;
 
   @override
   void initState() {
@@ -54,7 +52,7 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
         onAdDismissedFullScreenContent: (ad) {
           ad.dispose();
           _interstitialAd = null;
-          _loadInterstitial(); // pre-load next one
+          _loadInterstitial();
         },
         onAdFailedToShowFullScreenContent: (ad, _) {
           ad.dispose();
@@ -92,7 +90,6 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
     });
 
     if (opts[selectedIdx].letter == correct.letter) {
-      // ── Correct answer ─────────────────────────────────────────
       await AudioService.playSuccess();
       ref.read(starCountProvider.notifier).state++;
       final stars = ref.read(starCountProvider);
@@ -101,20 +98,18 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
         await AudioService.playCheer();
       }
       await Future.delayed(const Duration(milliseconds: 800));
-      if (!mounted) return;  // guard: screen may have been popped
+      if (!mounted) return;
       _nextQuestion();
     } else {
-      // ── Wrong answer — play error, reveal correct, then auto-advance ──
       await AudioService.playError();
       await Future.delayed(const Duration(milliseconds: 1800));
-      if (!mounted) return;  // guard
+      if (!mounted) return;
       _nextQuestion();
     }
   }
 
   void _nextQuestion() {
     _roundsPlayed++;
-    // Show interstitial every 3 rounds (Play Mode only — no ads in Learn/Trace)
     if (_roundsPlayed % 3 == 0) _showInterstitialIfReady();
     setState(() {
       _questionIndex = (_questionIndex + 1) % _alphabet.length;
@@ -129,287 +124,163 @@ class _PlayScreenState extends ConsumerState<PlayScreen> {
     final stars = ref.watch(starCountProvider);
 
     return Scaffold(
-      backgroundColor: const Color(AppColors.bgDark1),
-      body: GradientBackground(
-        colors: const [
-          Color(AppColors.bgDark1),
-          Color(AppColors.bgDark2),
-          Color(AppColors.bgDark3),
+      backgroundColor: const Color(AppColors.bgLight),
+      appBar: AppBar(
+        flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppGradients.play)),
+        title: const Text('Play', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                const Text('⭐', style: TextStyle(fontSize: 16)),
+                const SizedBox(width: 5),
+                Text('$stars', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+              ],
+            ),
+          ),
         ],
-        child: Stack(
-          children: [
-            const StarField(),
-            SafeArea(
-              child: alphabetAsync.when(
-                loading: () => const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(AppColors.neonBlue),
-                  ),
-                ),
-                error: (e, _) => Center(
-                  child: Text('Error: $e',
-                      style: const TextStyle(color: Colors.white)),
-                ),
-                data: (alphabet) {
-                  _alphabet = alphabet;
-                  if (_options.isEmpty) _buildOptions(alphabet);
-                  final correct = alphabet[_questionIndex];
-                  final opts = _options[_questionIndex];
+      ),
+      body: alphabetAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (alphabet) {
+          _alphabet = alphabet;
+          if (_options.isEmpty) _buildOptions(alphabet);
+          final correct = alphabet[_questionIndex];
+          final opts = _options[_questionIndex];
 
-                  return Column(
+          return Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                  child: Column(
                     children: [
-                      // ── Custom AppBar ──────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
-                        child: Row(
+                      // ── Question card ─────────────────────────────────
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+                        decoration: BoxDecoration(
+                          gradient: AppGradients.play,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(AppColors.playStart).withValues(alpha: 0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Column(
                           children: [
-                            GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color:
-                                      Colors.white.withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.white
-                                        .withValues(alpha: 0.15),
-                                  ),
-                                ),
-                                child: const Icon(Icons.arrow_back_ios_new,
-                                    color: Colors.white, size: 18),
-                              ),
-                            ),
-                            const Spacer(),
-                            NeonText(
-                              'Play Mode 🎮',
-                              color: const Color(AppColors.neonPurple),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            const Spacer(),
-                            Row(
-                              children: [
-                                const Text('⭐',
-                                    style: TextStyle(fontSize: 18)),
-                                const SizedBox(width: 4),
-                                NeonText(
-                                  '$stars',
-                                  color: const Color(AppColors.neonYellow),
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ],
-                            ),
+                            Text('Which picture starts with',
+                                style: TextStyle(fontSize: 15, color: Colors.white.withValues(alpha: 0.85))),
+                            const SizedBox(height: 6),
+                            Text('"${correct.letter}"',
+                                style: const TextStyle(fontSize: 52, fontWeight: FontWeight.bold, color: Colors.white)),
                           ],
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 28),
 
-                      // ── Question Prompt ────────────────────────────────
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 24),
-                        child: NeonCard(
-                          glowColor: const Color(AppColors.neonBlue),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 8),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white
-                                        .withValues(alpha: 0.07),
-                                    borderRadius: BorderRadius.circular(30),
-                                    border: Border.all(
-                                      color: const Color(AppColors.neonBlue)
-                                          .withValues(alpha: 0.3),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    '🔍  Find the picture for:',
-                                    style: TextStyle(
-                                      color: Color(AppColors.textSecondary),
-                                      fontSize: 13,
-                                      letterSpacing: 1.1,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                NeonText(
-                                  '"${correct.letter}"',
-                                  color: const Color(AppColors.neonBlue),
-                                  fontSize: 52,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ).animate().fadeIn(duration: 400.ms).slideY(
-                            begin: -0.2,
-                            end: 0,
-                            duration: 400.ms,
-                            curve: Curves.easeOut,
-                          ),
-
-                      const SizedBox(height: 40),
-
-                      // ── Option Cards ───────────────────────────────────
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16),
+                      // ── Option cards ──────────────────────────────────
+                      Expanded(
                         child: Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: List.generate(opts.length, (i) {
-                            final isCorrect =
-                                opts[i].letter == correct.letter;
+                            final isCorrect = opts[i].letter == correct.letter;
                             final isSelected = _selectedIndex == i;
 
-                            Color borderColor =
-                                Colors.white.withValues(alpha: 0.10);
-                            List<BoxShadow> glowShadows = [];
-
+                            Color borderColor = Colors.transparent;
+                            Color cardColor = Colors.white;
                             if (_answered) {
-                              if (isSelected && isCorrect) {
-                                borderColor =
-                                    const Color(AppColors.neonGreen);
-                                glowShadows = [
-                                  BoxShadow(
-                                    color: const Color(AppColors.neonGreen)
-                                        .withValues(alpha: 0.5),
-                                    blurRadius: 18,
-                                    spreadRadius: 2,
-                                  )
-                                ];
-                              } else if (isSelected && !isCorrect) {
-                                borderColor =
-                                    const Color(AppColors.neonCoral);
-                                glowShadows = [
-                                  BoxShadow(
-                                    color: const Color(AppColors.neonCoral)
-                                        .withValues(alpha: 0.5),
-                                    blurRadius: 18,
-                                    spreadRadius: 2,
-                                  )
-                                ];
-                              } else if (!isSelected && isCorrect) {
-                                borderColor =
-                                    const Color(AppColors.neonGreen);
-                                glowShadows = [
-                                  BoxShadow(
-                                    color: const Color(AppColors.neonGreen)
-                                        .withValues(alpha: 0.3),
-                                    blurRadius: 14,
-                                    spreadRadius: 1,
-                                  )
-                                ];
+                              if (isCorrect) {
+                                borderColor = const Color(AppColors.successGreen);
+                                cardColor = const Color(AppColors.successGreen).withValues(alpha: 0.08);
+                              } else if (isSelected) {
+                                borderColor = const Color(AppColors.errorRed);
+                                cardColor = const Color(AppColors.errorRed).withValues(alpha: 0.06);
                               }
                             }
 
-                            return GestureDetector(
-                              onTap: () =>
-                                  _onAnswer(i, opts, correct),
-                              child: AnimatedContainer(
-                                duration: 200.ms,
-                                width: 105,
-                                height: 130,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0E1E30),
-                                  borderRadius:
-                                      BorderRadius.circular(20),
-                                  border: Border.all(
-                                      color: borderColor, width: 2.5),
-                                  boxShadow: glowShadows,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.circular(12),
-                                      child: Image.asset(
-                                        opts[i].image,
-                                        width: 64,
-                                        height: 64,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            const Icon(Icons.image,
-                                                size: 42,
-                                                color: Colors.white38),
+                            return Expanded(
+                              child: GestureDetector(
+                                onTap: () => _onAnswer(i, opts, correct),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                                  decoration: BoxDecoration(
+                                    color: cardColor,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: borderColor, width: 3),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.07),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      opts[i].word,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                        color: _answered && isCorrect
-                                            ? const Color(
-                                                AppColors.neonGreen)
-                                            : Colors.white
-                                                .withValues(alpha: 0.9),
+                                    ],
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: Image.asset(
+                                          opts[i].image,
+                                          width: 70,
+                                          height: 70,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              const Icon(Icons.image, size: 48, color: Colors.grey),
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        opts[i].word,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            fontSize: 14, fontWeight: FontWeight.bold, color: Color(AppColors.textDark)),
+                                      ),
+                                    ],
+                                  ),
+                                ).animate(
+                                    target: isSelected && _answered && !isCorrect ? 1 : 0)
+                                  .shakeX(amount: 8, duration: 400.ms),
                               ),
-                            )
-                                .animate(
-                                    target: isSelected &&
-                                            _answered &&
-                                            !isCorrect
-                                        ? 1
-                                        : 0)
-                                .shakeX(amount: 8, duration: 400.ms)
-                                .animate()
-                                .fadeIn(
-                                    duration: 400.ms,
-                                    delay: Duration(
-                                        milliseconds: 100 + i * 120))
-                                .slideY(
-                                    begin: 0.3,
-                                    end: 0,
-                                    duration: 400.ms,
-                                    delay: Duration(
-                                        milliseconds: 100 + i * 120),
-                                    curve: Curves.easeOut);
+                            );
                           }),
                         ),
                       ),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-
-            // ── Confetti overlay ────────────────────────────────────────
-            Align(
-              alignment: Alignment.topCenter,
-              child: ConfettiWidget(
+              ConfettiWidget(
                 confettiController: _confetti,
                 blastDirectionality: BlastDirectionality.explosive,
                 numberOfParticles: 30,
                 colors: const [
-                  Color(AppColors.neonYellow),
-                  Color(AppColors.neonBlue),
-                  Color(AppColors.neonGreen),
-                  Color(AppColors.neonCoral),
-                  Color(AppColors.neonPurple),
+                  Color(AppColors.starGold),
+                  Color(AppColors.playStart),
+                  Color(AppColors.successGreen),
+                  Color(AppColors.errorRed),
                 ],
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }

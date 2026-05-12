@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/app_constants.dart';
-import '../theme/app_theme.dart';
 import '../providers/app_providers.dart';
 import '../services/audio_service.dart';
-
-// ignore_for_file: unused_import
 
 // ── Waypoints for all 26 letters (normalised 0.0–1.0 coords) ─────────────────
 // Rules: NO duplicate points. Each point is a unique position the child must visit.
@@ -164,27 +161,31 @@ class _TraceScreenState extends ConsumerState<TraceScreen> {
   void _onPanUpdate(DragUpdateDetails d, Size size) {
     // Do NOT return early when completed — child can keep drawing freely
     final wps = _waypoints;
+    bool changed = false;
     for (int i = 0; i < wps.length; i++) {
       if (_hitWaypoints.contains(i)) continue;
       final wp = Offset(wps[i].dx * size.width, wps[i].dy * size.height);
-      if ((d.localPosition - wp).distance < 30.0) {
+      if ((d.localPosition - wp).distance < 30.0) {   // 30px — easier for kids
         _hitWaypoints.add(i);
         _hitCount++;
+        changed = true;
       }
     }
-    // Single setState per pan event — covers point add + waypoint colour change
+    // Single setState per pan event for performance
     setState(() => _drawnPoints.add(d.localPosition));
-
     // Trigger success only once, after ALL waypoints are hit (100%)
     if (!_completed && _hitCount >= _waypoints.length) {
       setState(() => _completed = true);
       AudioService.playSuccess();
+      // Auto-advance to next letter after 2 seconds
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           final total = ref.read(alphabetProvider).valueOrNull?.length ?? 26;
           _nextLetter(total);
         }
       });
+    } else if (changed) {
+      setState(() {}); // repaint waypoint colours
     }
   }
 
@@ -215,196 +216,159 @@ class _TraceScreenState extends ConsumerState<TraceScreen> {
     final index = ref.watch(currentIndexProvider);
 
     return Scaffold(
-      body: GradientBackground(
-        colors: const [Color(0xFF0A1628), Color(0xFF0D2B1A), Color(0xFF0D0D2B)],
-        child: Stack(
-          children: [
-            const RepaintBoundary(child: StarField()),
-            SafeArea(
-              child: alphabetAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-                error: (e, _) => Center(child: Text('Error: $e', style: const TextStyle(color: Colors.white))),
-                data: (alphabet) {
-                  final letter = alphabet[index];
+      backgroundColor: const Color(AppColors.bgLight),
+      appBar: AppBar(
+        flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppGradients.trace)),
+        title: const Text('Trace', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+              icon: const Icon(Icons.refresh_rounded), onPressed: _reset, tooltip: 'Reset'),
+        ],
+      ),
+      body: alphabetAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (alphabet) {
+          final letter = alphabet[index];
 
-                  // Reset when letter changes
-                  if (_currentLetter != letter.letter) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) {
-                        setState(() {
-                          _currentLetter = letter.letter;
-                          _drawnPoints.clear();
-                          _hitCount = 0;
-                          _hitWaypoints.clear();
-                          _completed = false;
-                        });
-                      }
-                    });
-                  }
+          // Reset when letter changes
+          if (_currentLetter != letter.letter) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                setState(() {
+                  _currentLetter = letter.letter;
+                  _drawnPoints.clear();
+                  _hitCount = 0;
+                  _hitWaypoints.clear();
+                  _completed = false;
+                });
+              }
+            });
+          }
 
-                  return Column(
-                    children: [
-                      // ── AppBar row ───────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                            const Expanded(
-                              child: Text('Trace Mode ✍️',
-                                  style: TextStyle(fontFamily: AppFonts.fredoka, fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.refresh_rounded, color: Color(AppColors.neonGreen)),
-                              onPressed: _reset,
-                              tooltip: 'Reset',
-                            ),
-                          ],
-                        ),
+          return Column(
+            children: [
+              // ── Header ────────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('${index + 1} / ${alphabet.length}',
+                        style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w600)),
+                    Text('Trace: ${letter.letter}',
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                    Text(letter.word,
+                        style: TextStyle(fontSize: 16, color: Colors.grey.shade600, fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // ── Success / Hint banner ─────────────────────────────────
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _completed
+                    ? Container(
+                        key: const ValueKey('success'),
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(
+                            gradient: AppGradients.trace,
+                            borderRadius: BorderRadius.circular(16)),
+                        child: const Text('🎉 Amazing! Next letter coming…',
+                            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                      )
+                    : Container(
+                        key: const ValueKey('hint'),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Text('Trace the letter with your finger 👆',
+                            style: TextStyle(fontSize: 15, color: Colors.grey.shade500)),
                       ),
+              ),
 
-                      // ── Header info ──────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('${index + 1} / ${alphabet.length}',
-                                style: const TextStyle(fontFamily: AppFonts.fredoka, fontSize: 15, color: Color(AppColors.textSecondary))),
-                            NeonText('Trace: ${letter.letter}', fontSize: 26, color: const Color(AppColors.neonGreen)),
-                            Text(letter.word,
-                                style: const TextStyle(fontFamily: AppFonts.fredoka, fontSize: 15, color: Color(AppColors.textSecondary))),
-                          ],
-                        ),
+              // ── Canvas ────────────────────────────────────────────────
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 4)),
+                        ],
                       ),
-
-                      const SizedBox(height: 8),
-
-                      // ── Success / Hint banner ────────────────────────
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        child: _completed
-                            ? Container(
-                                key: const ValueKey('success'),
-                                margin: const EdgeInsets.symmetric(horizontal: 24),
-                                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                decoration: BoxDecoration(
-                                  color: const Color(AppColors.neonGreen).withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: const Color(AppColors.neonGreen).withValues(alpha: 0.6)),
-                                  boxShadow: [BoxShadow(color: const Color(AppColors.neonGreen).withValues(alpha: 0.3), blurRadius: 16)],
-                                ),
-                                child: const Text('🎉 Amazing! Next letter coming…',
-                                    style: TextStyle(fontFamily: AppFonts.fredoka, fontSize: 19, color: Color(AppColors.neonGreen), fontWeight: FontWeight.bold)),
-                              )
-                            : Container(
-                                key: const ValueKey('hint'),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
-                                child: const Text('Trace the letter with your finger 👆',
-                                    style: TextStyle(fontFamily: AppFonts.fredoka, fontSize: 15, color: Color(AppColors.textSecondary))),
-                              ),
-                      ),
-
-                      // ── Canvas ───────────────────────────────────────
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0E1E30),
-                              borderRadius: BorderRadius.circular(28),
-                              border: Border.all(color: const Color(AppColors.neonGreen).withValues(alpha: 0.25), width: 1.5),
-                              boxShadow: [
-                                BoxShadow(color: const Color(AppColors.neonGreen).withValues(alpha: 0.08), blurRadius: 20, spreadRadius: 2),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(28),
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final size = Size(constraints.maxWidth, constraints.maxHeight);
-                                  return GestureDetector(
-                                    onPanUpdate: (d) => _onPanUpdate(d, size),
-                                    onPanEnd: (_) {},
-                                    child: CustomPaint(
-                                      size: size,
-                                      painter: _TracePainter(
-                                        letter: letter.letter,
-                                        drawnPoints: _drawnPoints,
-                                        waypoints: _waypoints,
-                                        hitWaypoints: _hitWaypoints,
-                                      ),
-                                    ),
-                                  );
-                                },
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final size = Size(constraints.maxWidth, constraints.maxHeight);
+                          return GestureDetector(
+                            onPanUpdate: (d) => _onPanUpdate(d, size),
+                            onPanEnd: (_) {},
+                            child: CustomPaint(
+                              size: size,
+                              painter: _TracePainter(
+                                letter: letter.letter,
+                                drawnPoints: _drawnPoints,
+                                waypoints: _waypoints,
+                                hitWaypoints: _hitWaypoints,
                               ),
                             ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // ── Navigation ────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: OutlinedButton.icon(
+                          onPressed: () => _prevLetter(alphabet.length),
+                          icon: const Icon(Icons.arrow_back_ios),
+                          label: const Text('Prev', style: TextStyle(fontSize: 16)),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Color(AppColors.traceStart), width: 2),
+                            foregroundColor: const Color(AppColors.traceStart),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           ),
                         ),
                       ),
-
-                      // ── Navigation ───────────────────────────────────
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => _prevLetter(alphabet.length),
-                                child: Container(
-                                  height: 58,
-                                  decoration: BoxDecoration(
-                                    color: const Color(AppColors.neonCoral).withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: const Color(AppColors.neonCoral).withValues(alpha: 0.5)),
-                                  ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.arrow_back_ios_rounded, color: Color(AppColors.neonCoral), size: 18),
-                                      SizedBox(width: 6),
-                                      Text('Prev', style: TextStyle(fontFamily: AppFonts.fredoka, fontSize: 18, color: Color(AppColors.neonCoral), fontWeight: FontWeight.bold)),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => _nextLetter(alphabet.length),
-                                child: Container(
-                                  height: 58,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(colors: [Color(0xFF0D5E2E), Color(0xFF157A3D)]),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: const Color(AppColors.neonGreen).withValues(alpha: 0.5)),
-                                    boxShadow: [BoxShadow(color: const Color(AppColors.neonGreen).withValues(alpha: 0.25), blurRadius: 12)],
-                                  ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text('Next', style: TextStyle(fontFamily: AppFonts.fredoka, fontSize: 18, color: Color(AppColors.neonGreen), fontWeight: FontWeight.bold)),
-                                      SizedBox(width: 6),
-                                      Icon(Icons.arrow_forward_ios_rounded, color: Color(AppColors.neonGreen), size: 18),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _nextLetter(alphabet.length),
+                          icon: const Icon(Icons.arrow_forward_ios),
+                          label: const Text('Next', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(AppColors.traceStart),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
                         ),
                       ),
-                    ],
-                  );
-                },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -424,83 +388,45 @@ class _TracePainter extends CustomPainter {
     required this.hitWaypoints,
   });
 
-  // Cached TextPainter — rebuilt only when letter or size changes
-  static String _cachedLetter = '';
-  static double _cachedFontSize = 0;
-  static TextPainter? _cachedTextPainter;
-
   @override
   void paint(Canvas canvas, Size size) {
-    // ── Ghost letter — cached TextPainter ────────────────────────
-    final fontSize = size.height * 0.72;
-    if (_cachedLetter != letter || _cachedFontSize != fontSize) {
-      _cachedLetter = letter;
-      _cachedFontSize = fontSize;
-      _cachedTextPainter = TextPainter(
-        text: TextSpan(
-          text: letter,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            color: Colors.white.withValues(alpha: 0.06),
-          ),
+    // Ghost letter guide
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: letter,
+        style: TextStyle(
+          fontSize: size.height * 0.72,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey.withValues(alpha: 0.15),
         ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-    }
-    final tp = _cachedTextPainter!;
-    tp.paint(
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    textPainter.paint(
       canvas,
-      Offset((size.width - tp.width) / 2, (size.height - tp.height) / 2),
+      Offset((size.width - textPainter.width) / 2, (size.height - textPainter.height) / 2),
     );
 
-    // ── Waypoints ────────────────────────────────────────────────
+    // Waypoints
     for (int i = 0; i < waypoints.length; i++) {
       final wp = Offset(waypoints[i].dx * size.width, waypoints[i].dy * size.height);
       final isHit = hitWaypoints.contains(i);
-      if (isHit) {
-        // Soft glow ring — no MaskFilter, just a translucent circle
-        canvas.drawCircle(
-          wp, 18,
-          Paint()..color = const Color(AppColors.neonGreen).withValues(alpha: 0.20),
-        );
-        canvas.drawCircle(wp, 12, Paint()..color = const Color(AppColors.neonGreen));
-        canvas.drawCircle(wp, 5,  Paint()..color = Colors.white);
-      } else {
-        canvas.drawCircle(wp, 9, Paint()..color = Colors.white.withValues(alpha: 0.25));
-      }
+      canvas.drawCircle(wp, isHit ? 14 : 10,
+          Paint()..color = isHit ? const Color(AppColors.traceStart) : Colors.grey.withValues(alpha: 0.40));
+      if (isHit) canvas.drawCircle(wp, 5, Paint()..color = Colors.white);
     }
 
-    // ── Drawn path — neon blue, NO MaskFilter ────────────────────
-    if (drawnPoints.length > 1) {
-      // Wide semi-transparent stroke for glow effect (no GPU blur)
-      final glowPaint = Paint()
-        ..color = const Color(AppColors.neonBlue).withValues(alpha: 0.22)
-        ..strokeWidth = 22
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..style = PaintingStyle.stroke;
-
-      final solidPaint = Paint()
-        ..color = const Color(AppColors.neonBlue)
-        ..strokeWidth = 10
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round
-        ..style = PaintingStyle.stroke;
-
-      // Build path once — much faster than drawLine in a loop
-      final path = Path()..moveTo(drawnPoints[0].dx, drawnPoints[0].dy);
-      for (int i = 1; i < drawnPoints.length; i++) {
-        path.lineTo(drawnPoints[i].dx, drawnPoints[i].dy);
-      }
-      canvas.drawPath(path, glowPaint);
-      canvas.drawPath(path, solidPaint);
+    // Drawn path
+    final paint = Paint()
+      ..color = const Color(AppColors.playStart)
+      ..strokeWidth = 9
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    for (int i = 1; i < drawnPoints.length; i++) {
+      canvas.drawLine(drawnPoints[i - 1], drawnPoints[i], paint);
     }
   }
 
   @override
-  bool shouldRepaint(_TracePainter old) =>
-      old.drawnPoints.length != drawnPoints.length ||
-      old.hitWaypoints.length != hitWaypoints.length ||
-      old.letter != letter;
+  bool shouldRepaint(_TracePainter old) => true;
 }

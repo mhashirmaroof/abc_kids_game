@@ -1,36 +1,56 @@
+import 'package:flutter/material.dart';
+
 // App-wide constants
 
 class AppColors {
-  // Legacy (kept for trace painter)
-  static const yellow  = 0xFFFFD93D;
-  static const blue    = 0xFF4D96FF;
-  static const red     = 0xFFFF6B6B;
-  static const green   = 0xFF6BCB77;
-  static const white   = 0xFFFFFFFF;
-  static const bgLight = 0xFFFFF8F0;
+  // ── Background ────────────────────────────────────────────────────────────
+  static const bgLight      = 0xFFF5F3FF;  // soft lavender-white
+  static const bgCard       = 0xFFFFFFFF;
 
-  // ── New Design System ─────────────────────────────────────────────────────
-  // Backgrounds
-  static const bgDark1      = 0xFF0D0D2B;  // deep navy
-  static const bgDark2      = 0xFF1A1A4E;  // mid navy
-  static const bgDark3      = 0xFF16213E;  // dark blue
+  // ── Brand gradient (appbars, splash, onboarding) ──────────────────────────
+  static const gradStart    = 0xFF7C3AED;  // vivid violet
+  static const gradEnd      = 0xFF4F46E5;  // indigo
 
-  // Accent colors
-  static const neonBlue     = 0xFF4DFFEF;  // electric cyan
-  static const neonPurple   = 0xFFBB86FC;  // soft purple
-  static const neonYellow   = 0xFFFFE566;  // warm yellow
-  static const neonCoral    = 0xFFFF6584;  // coral pink
-  static const neonGreen    = 0xFF69FF97;  // lime green
-  static const neonOrange   = 0xFFFFAA5C;  // warm orange
+  // ── Mode accent colours ───────────────────────────────────────────────────
+  static const learnStart   = 0xFFF97316;  // orange
+  static const learnEnd     = 0xFFEF4444;  // coral-red
+  static const playStart    = 0xFF3B82F6;  // blue
+  static const playEnd      = 0xFF6366F1;  // indigo
+  static const traceStart   = 0xFF10B981;  // emerald
+  static const traceEnd     = 0xFF059669;  // deep green
 
-  // Card colors (semi-transparent)
-  static const cardLearn    = 0xFF1E3A5F;  // deep blue card
-  static const cardPlay     = 0xFF3D1E5F;  // deep purple card
-  static const cardTrace    = 0xFF1E5F3A;  // deep green card
+  // ── UI feedback ───────────────────────────────────────────────────────────
+  static const starGold     = 0xFFF59E0B;
+  static const successGreen = 0xFF10B981;
+  static const errorRed     = 0xFFEF4444;
+  static const textDark     = 0xFF1E1B4B;
+  static const textMid      = 0xFF6B7280;
 
-  // Text
-  static const textPrimary  = 0xFFFFFFFF;
-  static const textSecondary= 0xFFB0B8D4;
+  // ── Legacy aliases (keep so no other file breaks) ────────────────────────
+  static const yellow = learnStart;
+  static const blue   = playStart;
+  static const red    = errorRed;
+  static const green  = traceStart;
+  static const white  = bgCard;
+}
+
+class AppGradients {
+  static const brand = LinearGradient(
+    colors: [Color(AppColors.gradStart), Color(AppColors.gradEnd)],
+    begin: Alignment.topLeft, end: Alignment.bottomRight,
+  );
+  static const learn = LinearGradient(
+    colors: [Color(AppColors.learnStart), Color(AppColors.learnEnd)],
+    begin: Alignment.topLeft, end: Alignment.bottomRight,
+  );
+  static const play = LinearGradient(
+    colors: [Color(AppColors.playStart), Color(AppColors.playEnd)],
+    begin: Alignment.topLeft, end: Alignment.bottomRight,
+  );
+  static const trace = LinearGradient(
+    colors: [Color(AppColors.traceStart), Color(AppColors.traceEnd)],
+    begin: Alignment.topLeft, end: Alignment.bottomRight,
+  );
 }
 
 class AppFonts {
